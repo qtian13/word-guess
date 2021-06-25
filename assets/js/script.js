@@ -33,15 +33,13 @@ function startTimer(){
 // }, 1000 * 1);
 
 function startGuess() {
-    console.log("stratGuess executed");
-
     var currentWord = wordArray[indexOfCurrentWord];
     for(var i = 0; i < currentWord.length; i++) {
         var element = document.createElement("div");
         element.setAttribute("data-expected", currentWord[i]);
         element.setAttribute("class", "character");
-        element.setAttribute("style", "font-size: 10px; border-bottom: 2px solid black; width: 15px; height: 15px");
-        element.textContent = "I";
+        element.setAttribute("style", "font-size: 30px; border-bottom: 2px solid black; width: 40px; height: 40px; display: flex; justify-content: center; margin: 5px;");
+        document.querySelector(".word-box").appendChild(element);
     }
 }
 
