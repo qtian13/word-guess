@@ -11,12 +11,16 @@ var charSelected = null;
 
 function startGame() {
     wordArray = ["elephant", "cat", "rabbit", "bee", "dog"];
+    startTimer();
+    startGuess();
+}
+
+function reset() {
     indexOfCurrentWord = 0;
     document.querySelector("#wins").textContent = "Wins: 0";
     document.querySelector("#losses").textContent = "Losses: 0";
     document.querySelector("#time-left").textContent = "TIME LEFT: " + secondsLeft + "s";
-    startTimer();
-    startGuess();
+
 }
 
 function startTimer(){
@@ -85,7 +89,7 @@ function checkResult(char) {
         }   
     }
 }
-startGame();
+reset();
 addEventListener("click", selectPosition);
 addEventListener("keypress", function(keypressEvent) {
     var char = keypressEvent.key.toLowerCase();
