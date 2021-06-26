@@ -1,9 +1,12 @@
 var wordArray;
 var indexOfCurrentWord;
+var numWrongChar;
 var validInput = "abcdefghijklmnopqrstuvwxyz-";
 var secondsLeft = 60;
 var wordBox = document.querySelector(".word-box");
 var elementToRemoveKeypressListner;
+var numWins = 0;
+var numLosses = 0;
 
 function startGame() {
     wordArray = ["elephant", "cat", "rabbit", "bee", "dog"];
@@ -27,6 +30,7 @@ function startTimer(){
 
 function startGuess() {
     var currentWord = wordArray[indexOfCurrentWord];
+    numWrongChar = currentWord.length;
     for(var i = 0; i < currentWord.length; i++) {
         var element = document.createElement("div");
         element.setAttribute("data-expected", currentWord[i]);
@@ -37,66 +41,48 @@ function startGuess() {
     }
 }
 
-function selectPosition(event) {
-    var element = event.target;
+function selectPosition(clickEvent) {
+    var element = clickEvent.target;
     if (elementToRemoveKeypressListner) {
-        elementToRemoveKeypressListner.removeEventListener("keypress", checkResult);
+        //elementToRemoveKeypressListner.removeEventListener("keypress", checkResult);
         if (elementToRemoveKeypressListner.textContent !== elementToRemoveKeypressListner.dataset.expected){
             elementToRemoveKeypressListner.style["border-bottom"] = "2px solid black";
         }
     }
 
-    console.log(element);
     // var listernerForGuess = addEventListener("keypress", checkResult);
     if (element.matches(".character")) {
         element.style["border-bottom"] = "2px solid red";
-        element.addEventListener("keypress", checkResult);
+        window.addEventListener("keypress", function(pressEvent) {
+            checkResult(pressEvent, element);
+        });
         elementToRemoveKeypressListner = element;
     }
-    
 }
 
-function displayWord(word) {
-    // for(word.length)
-    // createElemetn(span) 
-    // span.textContent = word[i];
-
-}
-// when keypress, check if the result is correct:
-
-function checkResult(event) {
-    console.log("checkResult Event :");
-    console.log(event);
-//     var charEntered = event.key.toLowerCase();
-//     if (validInput.indexOf(charEntered) < 0) {
-//         alert("Please enter a alphabet character!");
-//     } else {
-//         // if entered the expected letter    
-//         //correct: display the letter and delete the underscore
-
-//         //if all the letters are displayed
-//         if (true) {
-//             // check if there are more words
-//             if (checkWordRemain) {
-//                 generateNewWord();
-//             }
-//             else {
-//                 updateWinResult();
-//             }
-//         }
-//     }
-}
-function checkWordRemain() {
-
-}
-function generateNewWord() {
-
-}
-function updateWinResult() {
-
+function checkResult(event, element) {
+    var charEntered = event.key.toLowerCase();
+    if (validInput.indexOf(charEntered) < 0) {
+        alert("Please enter a alphabet character!");
+    } else {
+        if (charEntered == element.dataset.expected) {
+            element.textContent = element.dataset.expected;
+            element.style["border-bottom"] = "none";
+            // numWrongChar--;
+            // if (numWrongChar == 0) {
+            //     indexOfCurrentWord++;
+            //     if (indexOfCurrentWord != wordArray.length) {
+            //         startGuess();
+            //     } else {
+            //         numWins++;
+            //         document.querySelector("#wins").textContent = "Wins: " + numWins;
+            //     }
+            // }
+        }   
+    }
 }
 startGame();
-document.addEventListener("keypress", checkResult);
+//document.addEventListener("keypress", checkResult);
 addEventListener("click", selectPosition);
 
 
