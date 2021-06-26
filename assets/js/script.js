@@ -2,8 +2,8 @@ var wordArray;
 var indexOfCurrentWord;
 var validInput = "abcdefghijklmnopqrstuvwxyz-";
 var secondsLeft = 60;
-// word-box:
-// the original display _ _ a _ _
+var wordBox = document.querySelector(".word-box");
+var elementToRemoveKeypressListner;
 
 function startGame() {
     wordArray = ["elephant", "cat", "rabbit", "bee", "dog"];
@@ -25,22 +25,35 @@ function startTimer(){
     }, 1000 * 60);
 }
 
-// this piece works
-// setInterval(function() {
-//     console.log("I am executed");
-//     secondsLeft--;
-//     document.querySelector("#time-left").textContent = "TIME LEFT: " + secondsLeft + "s";
-// }, 1000 * 1);
-
 function startGuess() {
     var currentWord = wordArray[indexOfCurrentWord];
     for(var i = 0; i < currentWord.length; i++) {
         var element = document.createElement("div");
         element.setAttribute("data-expected", currentWord[i]);
         element.setAttribute("class", "character");
+        element.setAttribute("id", "character" + i);
         element.setAttribute("style", "font-size: 30px; border-bottom: 2px solid black; width: 40px; height: 40px; display: flex; justify-content: center; margin: 5px;");
-        document.querySelector(".word-box").appendChild(element);
+        wordBox.appendChild(element);
     }
+}
+
+function selectPosition(event) {
+    var element = event.target;
+    if (elementToRemoveKeypressListner) {
+        elementToRemoveKeypressListner.removeEventListener("keypress", checkResult);
+        if (elementToRemoveKeypressListner.textContent !== elementToRemoveKeypressListner.dataset.expected){
+            elementToRemoveKeypressListner.style["border-bottom"] = "2px solid black";
+        }
+    }
+
+    console.log(element);
+    // var listernerForGuess = addEventListener("keypress", checkResult);
+    if (element.matches(".character")) {
+        element.style["border-bottom"] = "2px solid red";
+        element.addEventListener("keypress", checkResult);
+        elementToRemoveKeypressListner = element;
+    }
+    
 }
 
 function displayWord(word) {
@@ -52,24 +65,26 @@ function displayWord(word) {
 // when keypress, check if the result is correct:
 
 function checkResult(event) {
-    var charEntered = event.key.toLowerCase();
-    if (validInput.indexOf(charEntered) < 0) {
-        alert("Please enter a alphabet character!");
-    } else {
-        // if entered the expected letter    
-        //correct: display the letter and delete the underscore
+    console.log("checkResult Event :");
+    console.log(event);
+//     var charEntered = event.key.toLowerCase();
+//     if (validInput.indexOf(charEntered) < 0) {
+//         alert("Please enter a alphabet character!");
+//     } else {
+//         // if entered the expected letter    
+//         //correct: display the letter and delete the underscore
 
-        //if all the letters are displayed
-        if (true) {
-            // check if there are more words
-            if (checkWordRemain) {
-                generateNewWord();
-            }
-            else {
-                updateWinResult();
-            }
-        }
-    }
+//         //if all the letters are displayed
+//         if (true) {
+//             // check if there are more words
+//             if (checkWordRemain) {
+//                 generateNewWord();
+//             }
+//             else {
+//                 updateWinResult();
+//             }
+//         }
+//     }
 }
 function checkWordRemain() {
 
@@ -82,6 +97,7 @@ function updateWinResult() {
 }
 startGame();
 document.addEventListener("keypress", checkResult);
+addEventListener("click", selectPosition);
 
 
 
