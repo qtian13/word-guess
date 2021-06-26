@@ -2,7 +2,7 @@ var wordArray;
 var indexOfCurrentWord;
 var numWrongChar;
 var validInput = "abcdefghijklmnopqrstuvwxyz-";
-var timeTotal = 20;
+var timeTotal = 15;
 var secondsLeft = timeTotal;
 var wordBox = document.querySelector(".word-box");
 var elementToRemoveKeypressListner;
@@ -19,12 +19,18 @@ function startGame() {
 }
 
 function reset() {
+    localStorage.setItem("wins", 0);
+    localStorage.setItem("losses", 0);
+    document.querySelector("#wins").textContent = "Wins: 0";
+    document.querySelector("#losses").textContent = "Losses: 0";
+    startNewRound();
+}
+
+function startNewRound() {
     clearTimeout(myTimer);
     clearTimeout(myInterval);
     indexOfCurrentWord = 0;
     wordBox.innerHTML = "";
-    document.querySelector("#wins").textContent = "Wins: 0";
-    document.querySelector("#losses").textContent = "Losses: 0";
     secondsLeft = timeTotal;
     document.querySelector("#time-left").textContent = "Time left: " + secondsLeft + "s";
 }
@@ -44,10 +50,12 @@ function displayLoss() {
     numLosses++;
     document.querySelector("#losses").textContent = "Losses: " + numLosses;
     setTimeout(function() {
-        var tryAgain = alert("Time is up! Want to try again?");
-        reset();
+        var tryAgain = confirm("Time is up! Want to try again?");
+        startNewRound();
         if (tryAgain) {
             startGame();
+        } else {
+            reset();
         }
     }, 1);
 }
@@ -77,6 +85,7 @@ function selectPosition(clickEvent) {
     } else {
         charSelected = null;
         if (element.matches("#start-button")) {
+            startNewRound();
             startGame();
         }
     }
@@ -89,8 +98,6 @@ function checkResult(char) {
         if (char == charSelected.dataset.expected) {
             charSelected.dataset.guessed = "true";
             charSelected.textContent = char;
-            console.log(charSelected.textContent);
-            console.log(char);
             charSelected.style["border-bottom"] = "none";
             numWrongChar--;
             if (numWrongChar == 0) {
@@ -100,11 +107,13 @@ function checkResult(char) {
                         wordBox.innerHTML = "";
                         startGuess();
                     } else {
-                        numWins++;
-                        document.querySelector("#wins").textContent = "Wins: " + numWins;
+                        var wins = parseInt(localStorage.getItem("wins"));
+                        wins += 1;
+                        localStorage.setItem("wins", wins++);
+                        document.querySelector("#wins").textContent = "Wins: " + localStorage.getItem("wins");
                         setTimeout(function () {
                             alert("Congratulations! You win!");
-                            reset();
+                            startNewRound();
                         }, 1000 * 0.2);
                     }
                 }, 1);
