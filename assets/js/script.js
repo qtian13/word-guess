@@ -7,6 +7,7 @@ var wordBox = document.querySelector(".word-box");
 var elementToRemoveKeypressListner;
 var numWins = 0;
 var numLosses = 0;
+var charSelected = null;
 
 function startGame() {
     wordArray = ["elephant", "cat", "rabbit", "bee", "dog"];
@@ -23,17 +24,23 @@ function startTimer(){
         secondsLeft--;
         document.querySelector("#time-left").textContent = "TIME LEFT: " + secondsLeft + "s";
     }, 1000 * 1);
-     setTimeout(function() {
+    setTimeout(function () {
         clearInterval(myInterval);
+        if (indexOfCurrentWord != wordArray.length) {
+            numLosses++;
+            document.querySelector("#losses").textContent = "Losses: " + numLosses;
+        }
     }, 1000 * 60);
 }
 
 function startGuess() {
     var currentWord = wordArray[indexOfCurrentWord];
     numWrongChar = currentWord.length;
+    wordBox.innerHTML = "";
     for(var i = 0; i < currentWord.length; i++) {
         var element = document.createElement("div");
         element.setAttribute("data-expected", currentWord[i]);
+        element.setAttribute("data-guessed", "false");
         element.setAttribute("class", "character");
         element.setAttribute("id", "character" + i);
         element.setAttribute("style", "font-size: 30px; border-bottom: 2px solid black; width: 40px; height: 40px; display: flex; justify-content: center; margin: 5px;");
@@ -42,55 +49,47 @@ function startGuess() {
 }
 
 function selectPosition(clickEvent) {
-    var element = clickEvent.target;
-    if (elementToRemoveKeypressListner) {
-        //elementToRemoveKeypressListner.removeEventListener("keypress", checkResult);
-        if (elementToRemoveKeypressListner.textContent !== elementToRemoveKeypressListner.dataset.expected){
-            elementToRemoveKeypressListner.style["border-bottom"] = "2px solid black";
-        }
+    if (charSelected && (charSelected.dataset.guessed == "false")) {
+        charSelected.style["border-bottom"] = "2px solid black";
     }
-
-    // var listernerForGuess = addEventListener("keypress", checkResult);
-    if (element.matches(".character")) {
-        element.style["border-bottom"] = "2px solid red";
-        window.addEventListener("keypress", function(pressEvent) {
-            checkResult(pressEvent, element);
-        });
-        elementToRemoveKeypressListner = element;
+    var element = clickEvent.target;
+    if (element.matches(".character") && (element.dataset.guessed == "false")) {
+        charSelected = element;
+        charSelected.style["border-bottom"] = "2px solid red";
+    } else {
+        charSelected = null;
+        if (element.matches("#start-button")) {
+            startGame();
+        }
     }
 }
 
-function checkResult(event, element) {
-    var charEntered = event.key.toLowerCase();
-    if (validInput.indexOf(charEntered) < 0) {
+function checkResult(char) {
+    if (validInput.indexOf(char) < 0) {
         alert("Please enter a alphabet character!");
     } else {
-        if (charEntered == element.dataset.expected) {
-            element.textContent = element.dataset.expected;
-            element.style["border-bottom"] = "none";
-            // numWrongChar--;
-            // if (numWrongChar == 0) {
-            //     indexOfCurrentWord++;
-            //     if (indexOfCurrentWord != wordArray.length) {
-            //         startGuess();
-            //     } else {
-            //         numWins++;
-            //         document.querySelector("#wins").textContent = "Wins: " + numWins;
-            //     }
-            // }
+        if (char == charSelected.dataset.expected) {
+            charSelected.dataset.guessed = "true";
+            charSelected.textContent = char;
+            charSelected.style["border-bottom"] = "none";
+            numWrongChar--;
+            if (numWrongChar == 0) {
+                indexOfCurrentWord++;
+                if (indexOfCurrentWord != wordArray.length) {
+                    startGuess();
+                } else {
+                    numWins++;
+                    document.querySelector("#wins").textContent = "Wins: " + numWins;
+                }
+            }
         }   
     }
 }
 startGame();
-//document.addEventListener("keypress", checkResult);
 addEventListener("click", selectPosition);
-
-
-
-
-// result-box
-// Time left: 1 timeout and 1 interval
-// wins: all letters displayed, count++, display the count as text content
-// store the value to local storage
-// losses: timeout, count++, display the count as text content
-// store the value to local storage
+addEventListener("keypress", function(keypressEvent) {
+    var char = keypressEvent.key.toLowerCase();
+    if (charSelected && (charSelected.dataset.guessed == "false")) {
+        checkResult(char);
+    }
+})
